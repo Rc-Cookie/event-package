@@ -2,7 +2,7 @@ package com.github.rccookie.common.event;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Objects;
 
 public class Time {
     public static double MAX_DELTA_TIME = 0.08;
@@ -13,14 +13,16 @@ public class Time {
     public boolean useStaticFramelength = false;
     public double staticFramelength = 0.001;
     public double maxDeltaTime = MAX_DELTA_TIME;
+
+    private double time = 0;
     long frameIndex = 0;
 
     long lastFpsUpdateNanos = 0;
     int frameCount;
     int stableFps;
 
-
-    private final List<Consumer<Double>> listeners = new ArrayList<>();
+    private final List<RepeatingTask> repeatingTasks = new ArrayList<>();
+    private final List<DelayedTask> delayedTasks = new ArrayList<>();
 
 
     public Time() {
@@ -38,10 +40,26 @@ public class Time {
         if(currentNanos - lastFpsUpdateNanos >= 1000000000l) {
             lastFpsUpdateNanos += 1000000000l;
             stableFps = frameCount;
-            for(Consumer<Double> listener : listeners) listener.accept(deltaTime);
             frameCount = 0;
         }
         frameIndex++;
+        time += deltaTime();
+
+        runTasks();
+    }
+
+    private void runTasks() {
+        for(DelayedTask task : delayedTasks.toArray(new DelayedTask[0])) {
+            if(task.executionTime <= time()) {
+                task.execute();
+                delayedTasks.remove(task);
+            }
+        }
+        for(RepeatingTask task : repeatingTasks.toArray(new RepeatingTask[0])) {
+            if(task.nextExecutionTime <= time()) {
+                task.execute();
+            }
+        }
     }
 
     /**
@@ -54,6 +72,17 @@ public class Time {
 
     public void setTimeScale(double scale) {
         timeScale = scale;
+    }
+
+    /**
+     * Returns the time that has passed since the initialization, in seconds. The time
+     * may be incorrect to the real time if the update method was not called often enough,
+     * but it will be exactly the sum of all returned deltaTimes.
+     * 
+     * @return The current time
+     */
+    public double time() {
+        return time;
     }
 
     /**
@@ -80,11 +109,54 @@ public class Time {
     }
 
 
-    public void addSecondListener(Consumer<Double> listener) {
-        listeners.add(listener);
+
+    public void repeat(Runnable task, double rate, double initialDelay) {
+        repeatingTasks.add(new RepeatingTask(task, rate, initialDelay));
     }
 
-    public void removeSecondListener(Consumer<Double> listener) {
-        listeners.remove(listener);
+    public void repeat(Runnable task, double rate) {
+        repeat(task, rate, 0);
+    }
+
+    public void delay(Runnable task, double delay) {
+        delayedTasks.add(new DelayedTask(task, delay));
+    }
+
+
+
+    private class RepeatingTask {
+
+        private final Runnable task;
+        private final double rate;
+        private double nextExecutionTime;
+
+        public RepeatingTask(Runnable task, double rate, double initialDelay) {
+            this.task = Objects.requireNonNull(task);
+            if(rate < 0) throw new IllegalArgumentException("The delay must be a positive number");
+            this.rate = rate;
+            if(initialDelay < 0) throw new IllegalArgumentException("The initial delay must be a positive number");
+            nextExecutionTime = time() + initialDelay;
+        }
+
+        public void execute() {
+            task.run();
+            nextExecutionTime += rate;
+        }
+    }
+
+    private class DelayedTask {
+
+        private final Runnable task;
+        private final double executionTime;
+
+        public DelayedTask(Runnable task, double delay) {
+            this.task = task;
+            if(delay < 0) throw new IllegalArgumentException("The delay must be a positive number");
+            executionTime = time() + delay;
+        }
+
+        public void execute() {
+            task.run();
+        }
     }
 }
