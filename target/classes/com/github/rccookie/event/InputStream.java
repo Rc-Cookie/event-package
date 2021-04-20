@@ -1,8 +1,8 @@
-package com.github.rccookie.common.event;
+package com.github.rccookie.event;
 
 import java.util.NoSuchElementException;
 
-import com.github.rccookie.common.util.Stream;
+import com.github.rccookie.util.Stream;
 
 /**
  * A stream of string input that has a limited capacity.

@@ -1,4 +1,4 @@
-package com.github.rccookie.common.event;
+package com.github.rccookie.event;
 
 import java.util.function.Consumer;
 
