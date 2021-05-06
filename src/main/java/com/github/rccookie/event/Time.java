@@ -10,14 +10,14 @@ public class Time {
     long lastNanos;
     double deltaTime = AVERAGE_DELTA_TIME;
     public double timeScale = 1;
-    public boolean useStaticFramelength = false;
-    public double staticFramelength = 0.001;
+    public boolean useStaticFrameLength = false;
+    public double staticFrameLength = 0.001;
     public double maxDeltaTime = MAX_DELTA_TIME;
 
     private double time = 0;
     long frameIndex = 0;
 
-    long lastFpsUpdateNanos = 0;
+    long lastFpsUpdateNanos;
     int frameCount;
     int stableFps;
 
@@ -37,8 +37,8 @@ public class Time {
 
 
         frameCount++;
-        if(currentNanos - lastFpsUpdateNanos >= 1000000000l) {
-            lastFpsUpdateNanos += 1000000000l;
+        if(currentNanos - lastFpsUpdateNanos >= 1000000000L) {
+            lastFpsUpdateNanos += 1000000000L;
             stableFps = frameCount;
             frameCount = 0;
         }
@@ -66,7 +66,7 @@ public class Time {
      * Fraction of time since the last frame
      */
     public double deltaTime() {
-        if(useStaticFramelength) return staticFramelength;
+        if(useStaticFrameLength) return staticFrameLength;
         return Math.min(maxDeltaTime, deltaTime) * timeScale;
     }
 
