@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A utility class for measuring time.
+ *
+ * @author RcCookie
+ */
 public class Time {
     public static double MAX_DELTA_TIME = 0.08;
     public static double AVERAGE_DELTA_TIME = 0.01;
