@@ -38,7 +38,7 @@ public class Time {
         long currentNanos = System.nanoTime();
         deltaTime = (currentNanos - lastNanos) / 1000000000d;
         lastNanos = currentNanos;
-        deltaTime %= 1;
+        //deltaTime %= 1;
 
 
         frameCount++;

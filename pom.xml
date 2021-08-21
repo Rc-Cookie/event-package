@@ -6,7 +6,7 @@
 
   <groupId>com.github.rccookie</groupId>
   <artifactId>event</artifactId>
-  <version>1.2.0.0</version>
+  <version>1.2.1.1</version>
 
   <name>event</name>
 
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>com.github.rccookie</groupId>
       <artifactId>util</artifactId>
-      <version>1.4.0.0</version>
+      <version>1.5.4.1</version>
     </dependency>
   </dependencies>
 
